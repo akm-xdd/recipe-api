@@ -13,7 +13,7 @@ ARG DEV=false
 RUN python3 -m venv /py && \
     /py/bin/pip3 install --upgrade pip && \
     /py/bin/pip3 install -r /tmp/requirements.txt && \
-    if [$DEV = "true"]; \
+    if [ $DEV = "true" ]; \
         then /py/bin/pip3 install -r /tmp/requirements.dev.txt ; \
     fi && \
     rm -rf /tmp && \
