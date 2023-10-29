@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.9-alpine3.13
 LABEL maintainer="akm-xdd"
 
 ENV PYTHONUNBUFFERED 1
@@ -12,11 +12,15 @@ EXPOSE 8000
 ARG DEV=false
 RUN python3 -m venv /py && \
     /py/bin/pip3 install --upgrade pip && \
+    apk add --update --no-cache postgresql-client && \
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        build-base postgresql-dev musl-dev && \
     /py/bin/pip3 install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
         then /py/bin/pip3 install -r /tmp/requirements.dev.txt ; \
     fi && \
     rm -rf /tmp && \
+    apk del .tmp-build-deps && \
         adduser \
         --disabled-password \
         --no-create-home \
