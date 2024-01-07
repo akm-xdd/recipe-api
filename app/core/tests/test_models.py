@@ -1,9 +1,11 @@
 """
 Tests for models
 """
-
+from decimal import Decimal
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+
+from core import models
 
 
 class ModelTests(TestCase):
@@ -21,7 +23,7 @@ class ModelTests(TestCase):
         self.assertEqual(user.email, email)
         # password is encrypted
         self.assertTrue(user.check_password(password))
-        
+
     def test_new_user_email_normalized(self):
         """Test the email for a new user is normalized"""
         sample_emails = [
@@ -29,8 +31,8 @@ class ModelTests(TestCase):
             ['Test2@Example.com', 'Test2@example.com'],
             ['TEST3@example.com', 'TEST3@example.com'],
             ['test4@example.com', 'test4@example.com'],
-        ] 
-        
+        ]
+
         for email, expected in sample_emails:
             user = get_user_model().objects.create_user(email, 'sample123')
             self.assertEqual(user.email, expected)
@@ -39,15 +41,31 @@ class ModelTests(TestCase):
         """Test that creating user without email raises error"""
 
         with self.assertRaises(ValueError):
-            get_user_model().objects.create_user('','test123')
+            get_user_model().objects.create_user('', 'test123')
 
-    
     def test_create_new_superuser(self):
         """Test creating a new superuser"""
         user = get_user_model().objects.create_superuser(
             'test@example.com',
             'test123',
-            )
-        
+        )
+
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+    def test_create_recipe(self):
+        """Test creating a recipe is successful"""
+        user = get_user_model().objects.create_user(
+            'test@example.com', 'testpass123'
+        )
+        recipe = models.Recipe.objects.create(
+            user=user,
+            title='Test Recipe',
+            time_minutes=5,
+            price=Decimal(5.50),
+            description='Test Recipe Description',
+
+        )
+        self.assertEqual(
+            str(recipe), recipe.title
+        )
